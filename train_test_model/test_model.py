@@ -10,9 +10,10 @@ import torch
 from dnnbrain.dnn import io as dnn_io
 from torch.utils.data import DataLoader
 
-#load your model
+#load the model you trained
 vgg = torch.load('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/vgg_vgg11bn_304_mix_tl_bestmodel.pth')
 
+# function dnn_train_model and dnn_test_model were modified from the original dnnbrain.dnn
 def dnn_test_model(dataloaders, model):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.eval()
