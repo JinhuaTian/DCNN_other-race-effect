@@ -180,8 +180,20 @@ data_transforms = {
                              std = [0.142, 0.137, 0.141])])
     }
 
+# load the image file
 picdataset_train = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['train'])
 picdataloader_train = DataLoader(picdataset_train, batch_size=64, shuffle=True, num_workers=10)
+
+"""
+csv_file[str]:  table contains picture names, conditions.
+please organize your information as:
+[picdir]
+stimid          condition
+faceid1         facenum1
+faceid1         facenum2
+faceid2         facenum1
+faces used in this study were presented in face materials
+"""
 
 # notice that the label is not shuffled and no image augmentation
 picdataset_train_val = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['val'])
