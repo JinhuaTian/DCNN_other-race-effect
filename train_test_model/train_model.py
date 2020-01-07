@@ -4,27 +4,27 @@ Created on Mon Sep  2 17:22:20 2019
 
 All codes used in this script were modified based on dnnbarin https://github.com/BNUCNL/dnnbrain
 
+please download and import dnnbrain module before you use this code
+
 Train a vgg11_bn model
 """
 
 import numpy as np
 import pandas as pd
-#import torch.utils.data as Data
 import torchvision
 from torch.utils.data import DataLoader     
 import torchvision.transforms as transforms
 
-import sys
-sys.path.remove('/usr/local/neurosoft/labtool/python/dnnbrain')
-sys.path.append('/nfs/h1/workingshop/tianjinhua/vgg_train/code/dnnbrain/')
+
+#dnnbrain toolkit
 from dnnbrain.dnn import io as dnn_io
 
-# from dnnbrain.dnn import models
 import copy
 import time
 from torch.optim import lr_scheduler
 from torch import nn
 
+# function dnn_train_model and dnn_test_model were modified from the original dnnbrain.dnn
 def dnn_train_model(dataloaders_train, model, criterion, optimizer, num_epoches, train_method='tradition',
                     dataloaders_train_test=None, dataloaders_val_test=None):
     LOSS = []
@@ -109,13 +109,13 @@ def dnn_train_model(dataloaders_train, model, criterion, optimizer, num_epoches,
         ### Set lr decay, note that learning rate scheduler was expected to be called before the optimizer's update
         scheduler.step()
 
-        ##### save the best model while training
+        ### save the best model while training
         if round(val_acc_top1, 4) > round(best_acc, 4):
             best_acc = val_acc_top1
             best_epoch = epoch
             torch.save(model, '/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/vgg_vgg11bn_304_mix_bestmodel.pth')
 
-    #### print the best validation accuray and epoch
+    #### print the best validation accuray and corresponding epoch
     print("best epoch is " + str(best_epoch))
     print("best validation acc is " + str(best_acc))
 
@@ -159,7 +159,6 @@ def dnn_test_model(dataloaders, model):
 
     return model_target, actual_target, test_acc_top1
 
-
 import torch
 torch.cuda.empty_cache()
 
@@ -191,13 +190,12 @@ dataloaders_train_test = DataLoader(picdataset_train_val, batch_size=16, shuffle
 picdataset_test_val = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_validating.csv', transform=data_transforms['val'])
 dataloaders_val_test = DataLoader(picdataset_test_val, batch_size=16, shuffle=False, num_workers=10)
 
-# train model
+# load the model
 vggface = torchvision.models.vgg11_bn(pretrained=False)
+# change the classification layer according to your id number.
 vggface.fc8 = torch.nn.Linear(4096, 304, bias=True)
 criterion = torch.nn.CrossEntropyLoss()  
 optimizer = torch.optim.SGD(vggface.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005)
-#exp_lr_scheduler = lr_scheduler.StepLR(optimizer_conv, step_size=7, gamma=0.1)
-#path_loss_acc = '/nfs/a2/userhome/tianjinhua/workingdir/train_model/loss.csv'
 
 model,metric_dict = dnn_train_model(picdataloader_train,
                            vggface, 
@@ -206,8 +204,10 @@ model,metric_dict = dnn_train_model(picdataloader_train,
                            90,
                            dataloaders_train_test = picdataloader_train,
                            dataloaders_val_test = dataloaders_val_test)
+# save the training procedure, loss decay, test accuracy, validation accuracy
 out_put = pd.DataFrame(metric_dict)
 #out_put = pd.DataFrame(metric_dict,index = [0])
+
 out_put.to_csv("/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/training_procedure_vgg11_304_90.csv",index=False,sep=',')
 
 torch.save(model, '/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/vgg_face_trained_vgg11_304_90.pth')
