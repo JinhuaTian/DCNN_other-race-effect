@@ -15,7 +15,6 @@ import torchvision
 from torch.utils.data import DataLoader     
 import torchvision.transforms as transforms
 
-
 #dnnbrain toolkit
 from dnnbrain.dnn import io as dnn_io
 
@@ -218,7 +217,6 @@ model,metric_dict = dnn_train_model(picdataloader_train,
                            dataloaders_val_test = dataloaders_val_test)
 # save the training procedure, loss decay, test accuracy, validation accuracy
 out_put = pd.DataFrame(metric_dict)
-#out_put = pd.DataFrame(metric_dict,index = [0])
 out_put.to_csv("/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/training_procedure_vgg11_304_90.csv",index=False,sep=',')
 # save the final model (optional)
 torch.save(model, '/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/vgg_face_trained_vgg11_304_90.pth')
