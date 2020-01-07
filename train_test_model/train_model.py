@@ -189,9 +189,9 @@ csv_file[str]:  table contains picture names, conditions.
 please organize your information as:
 [picdir]
 stimid          condition
-faceid1         facenum1
-faceid1         facenum2
-faceid2         facenum1
+facenum1        faceid1
+facenum2        faceid1
+facenum1        faceid2
 faces used in this study were presented in face materials
 """
 
