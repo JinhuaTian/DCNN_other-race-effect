@@ -16,12 +16,104 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 
 #dnnbrain toolkit
-from dnnbrain.dnn import io as dnn_io
+#from dnnbrain.dnn import io as dnn_io
 
 import copy
 import time
 from torch.optim import lr_scheduler
 from torch import nn
+from PIL import Image
+from torch.utils.data import Dataset
+import os
+
+# load image dataset you prepared using a csv file
+class PicDataset(Dataset):
+    """
+    Build a dataset to load pictures
+    """
+    def __init__(self, csv_file, transform=None, crop=None):
+        """
+        Initialize PicDataset
+        
+        Parameters:
+        ------------
+        csv_file[str]:  table contains picture names, conditions and picture onset time.
+                        This csv_file helps us connect cnn activation to brain images.
+                        Please organize your information as:
+                                     
+                        [PICDIR]
+                        stimID          condition   onset(optional) measurement(optional)
+                        download/face1  face        1.1             3
+                        mgh/face2.png   face        3.1             5
+                        scene1.png      scene       5.1             4
+        
+        transform[callable function]: optional transform to be applied on a sample.
+        crop[bool]:crop picture optionally by a bounding box.
+                   The coordinates of bounding box for crop pictures should be measurements in csv_file.
+                   The label of coordinates in csv_file should be left_coord,upper_coord,right_coord,lower_coord.
+        """
+        self.csv_file = pd.read_csv(csv_file, skiprows=1)
+        with open(csv_file,'r') as f:
+            self.picpath = f.readline().rstrip()
+        self.transform = transform
+        picname = np.array(self.csv_file['stimID'])
+        condition = np.array(self.csv_file['condition'])
+        self.picname = picname
+        self.condition = condition
+        self.crop = crop
+        if self.crop:
+            self.left = np.array(self.csv_file['left_coord'])
+            self.upper = np.array(self.csv_file['upper_coord'])
+            self.right = np.array(self.csv_file['right_coord'])
+            self.lower = np.array(self.csv_file['lower_coord'])
+
+    def __len__(self):
+        """
+        Return sample size
+        """
+        return self.csv_file.shape[0]
+    
+    def __getitem__(self, idx):
+        """
+        Get picture name, picture data and target of each sample
+        
+        Parameters:
+        -----------
+        idx: index of sample
+        
+        Returns:
+        ---------
+        picname: picture name
+        picimg: picture data, save as a pillow instance
+        target_label: target of each sample (label)
+        """
+        # load pictures
+        target_name = np.unique(self.condition)
+        picimg = Image.open(os.path.join(self.picpath, self.picname[idx])).convert('RGB')
+        if self.crop:
+            picimg = picimg.crop((self.left[idx],self.upper[idx],self.right[idx],self.lower[idx]))
+        target_label = target_name.tolist().index(self.condition[idx])
+        if self.transform:
+            picimg = self.transform(picimg)
+        else:
+            self.transform = transforms.Compose([transforms.ToTensor()])
+            picimg = self.transform(picimg)
+        return picimg, target_label
+        
+    def get_picname(self, idx):
+        """
+        Get picture name and its condition (target condition)
+        
+        Parameters:
+        -----------
+        idx: index of sample
+        
+        Returns:
+        ---------
+        picname: picture name
+        condition: target condition
+        """
+        return os.path.basename(self.picname[idx]), self.condition[idx]
 
 # function dnn_train_model and dnn_test_model were modified from the original dnnbrain.dnn
 def dnn_train_model(dataloaders_train, model, criterion, optimizer, num_epoches, train_method='tradition',
@@ -180,25 +272,14 @@ data_transforms = {
     }
 
 # load the image file
-picdataset_train = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['train'])
+picdataset_train = PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['train'])
 picdataloader_train = DataLoader(picdataset_train, batch_size=64, shuffle=True, num_workers=10)
 
-"""
-csv_file[str]:  table contains picture names, conditions.
-please organize your information as:
-[picdir]
-stimid          condition
-facenum1        faceid1
-facenum2        faceid1
-facenum1        faceid2
-faces used in this study were presented in face materials
-"""
-
 # notice that the label is not shuffled and no image augmentation
-picdataset_train_val = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['val'])
+picdataset_train_val = PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['val'])
 dataloaders_train_test = DataLoader(picdataset_train_val, batch_size=16, shuffle=False, num_workers=10)
 
-picdataset_test_val = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_validating.csv', transform=data_transforms['val'])
+picdataset_test_val = PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_validating.csv', transform=data_transforms['val'])
 dataloaders_val_test = DataLoader(picdataset_test_val, batch_size=16, shuffle=False, num_workers=10)
 
 # load the model
