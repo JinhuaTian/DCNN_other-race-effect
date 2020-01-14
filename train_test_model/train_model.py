@@ -26,7 +26,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 import os
 
-# load image dataset you prepared using a csv file
+# load the image dataset you prepared using a csv file
 class PicDataset(Dataset):
     """
     Build a dataset to load pictures
