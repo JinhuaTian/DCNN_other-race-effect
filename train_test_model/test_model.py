@@ -2,7 +2,9 @@
 """
 All codes used in this script were copied or modified based on dnnbarin https://github.com/BNUCNL/dnnbrain
 
-Train a vgg11_bn model
+Test a vgg11_bn model.
+
+Testing dataset and training dataset should included the same identities.
 """
 import numpy as np
 import pandas as pd
@@ -157,9 +159,10 @@ dataloaders_test_test = DataLoader(picdataset_test_test, batch_size=16, shuffle=
 #test the model
 model_target, actual_target, test_acc_top1 = dnn_test_model(dataloaders_test_test,vgg)
 
+# print the test accuracy
 print(test_acc_top1)
 
-# save the test results
+# save the test results as a csv file
 train = np.transpose(model_target)
 test = np.transpose(actual_target)
 data = pd.DataFrame({'train':train,'test':test})
