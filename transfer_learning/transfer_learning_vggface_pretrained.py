@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import sys
 sys.path.remove('/usr/local/neurosoft/labtool/python/dnnbrain')
+###Please load the old version cnnbrain
 sys.path.append('/nfs/h1/workingshop/tianjinhua/vgg_train/code/dnnbrain/')
 from dnnbrain.dnn.io import PicDataset
 from dnnbrain.dnn import io as dnn_io
