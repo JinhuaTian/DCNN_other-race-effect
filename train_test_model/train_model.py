@@ -283,7 +283,7 @@ picdataset_test_val = PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_A
 dataloaders_val_test = DataLoader(picdataset_test_val, batch_size=16, shuffle=False, num_workers=10)
 
 # load the model
-vggface = torchvision.models.vgg11_bn(pretrained=False)
+vggface = torchvision.models.vgg16(pretrained=False)
 # change the classification layer according to your id number.
 vggface.fc8 = torch.nn.Linear(4096, 304, bias=True)
 criterion = torch.nn.CrossEntropyLoss()  
