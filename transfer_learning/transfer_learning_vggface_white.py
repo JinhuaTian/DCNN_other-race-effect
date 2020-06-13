@@ -2,6 +2,8 @@
 """
 Created on Mon Sep  2 17:22:20 2019
 
+All codes used in this script were modified based on dnnbarin https://github.com/BNUCNL/dnnbrain
+
 @author: Administrator
 
 transfer learning using pretrained vggface

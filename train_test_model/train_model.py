@@ -131,7 +131,7 @@ def dnn_train_model(dataloaders_train, model, criterion, optimizer, num_epoches,
     model = model.to(device)
 
     #### lr decay
-    scheduler = lr_scheduler.StepLR(optimizer, 25, 250 ** (-1 / 3), last_epoch=-1)
+    scheduler = lr_scheduler.StepLR(optimizer, 23, 250 ** (-1 / 3), last_epoch=-1)
 
     #### save the best model (best epoch and best accuracy)
     best_epoch = 0
