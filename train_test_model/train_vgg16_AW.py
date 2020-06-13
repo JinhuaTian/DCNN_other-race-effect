@@ -266,13 +266,16 @@ data_transforms = {
                              std = [0.229, 0.224, 0.225])])
     }
 
+#training stimuli
 picdataset_train = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['train'])
 picdataloader_train = DataLoader(picdataset_train, batch_size=64, shuffle=True, num_workers=10)
 
+#test training data using training stimuli
 # notice that the label is not shuffled and no image augmentation
 picdataset_train_val = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_training.csv', transform=data_transforms['val'])
 dataloaders_train_test = DataLoader(picdataset_train_val, batch_size=16, shuffle=False, num_workers=10)
 
+#test model performance
 picdataset_test_val = dnn_io.PicDataset('/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/mix_validating.csv', transform=data_transforms['val'])
 dataloaders_val_test = DataLoader(picdataset_test_val, batch_size=16, shuffle=False, num_workers=10)
 
@@ -281,8 +284,6 @@ vggface = torchvision.models.vgg16(pretrained=False)
 vggface.classifier[6] = torch.nn.Linear(4096, 304, bias=True)
 criterion = torch.nn.CrossEntropyLoss()  
 optimizer = torch.optim.SGD(vggface.parameters(), lr=0.01, momentum=0.9, weight_decay=0.0005)
-#exp_lr_scheduler = lr_scheduler.StepLR(optimizer_conv, step_size=7, gamma=0.1)
-#path_loss_acc = '/nfs/a2/userhome/tianjinhua/workingdir/train_model/loss.csv'
 
 model,metric_dict = dnn_train_model(picdataloader_train,
                            vggface, 
