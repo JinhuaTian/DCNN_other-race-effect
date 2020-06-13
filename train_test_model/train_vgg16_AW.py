@@ -4,7 +4,7 @@ Created on Mon Sep  2 17:22:20 2019
 
 @author: Administrator
 
-transfer learning using pretrained vggface
+Train a face identification model using VGG16
 """
 
 import numpy as np
@@ -12,9 +12,6 @@ import pandas as pd
 import torchvision
 from torch.utils.data import DataLoader     
 import torchvision.transforms as transforms
-
-#dnnbrain toolkit
-#from dnnbrain.dnn import io as dnn_io
 
 import copy
 import time
