@@ -124,10 +124,10 @@ def dnn_train_model(dataloaders_train, model, criterion, optimizer, num_epoches,
     model.train()
     model = model.to(device)
 
-    #### lr decay
+    ### lr decay
     scheduler = lr_scheduler.StepLR(optimizer, 23, 250 ** (-1 / 3), last_epoch=-1)
 
-    #### save the best model (best epoch and best accuracy)
+    ### save the best model (best epoch and best accuracy)
     best_epoch = 0
     best_acc = 0
 
@@ -194,10 +194,11 @@ def dnn_train_model(dataloaders_train, model, criterion, optimizer, num_epoches,
         ### Set lr decay, note that learning rate scheduler was expected to be called before the optimizer's update
         scheduler.step()
 
-        ##### save the best model while training
+        ### save the best model while training
         if round(val_acc_top1, 4) > round(best_acc, 4):
             best_acc = val_acc_top1
             best_epoch = epoch
+            #save the best model
             torch.save(model, '/nfs/h1/workingshop/tianjinhua/vgg_train/vgg_AW/vgg16_304_mix_bestmodel.pth')
 
     #### print the best validation accuray and epoch
